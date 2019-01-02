@@ -29,3 +29,12 @@ func (e Elem) String() string {
 	return fmt.Sprintf("Date: %v; 	priority: %v; description: %v; status: %v;",
 		fmt.Sprintf(e.date.Format(layout)), e.priority, e.description, e.status)
 }
+
+// Equal Checks if the values of the right element are equal of those of the left element
+func Equal(right, left Elem) bool {
+	if right.date.Equal(left.date) && right.description == left.description &&
+		right.priority == left.priority && right.status == left.status {
+		return true
+	}
+	return false
+}

@@ -28,6 +28,8 @@ func (e *ElemsTable) String() string {
 	return str
 }
 
+// ------------------------------ Helper functions ------------------------------
+
 // less reports whether the right element should sort before the left element.
 func (e *ElemsTable) less(rightElem, leftElem Elem) bool {
 	if !e.sortByPriority {
@@ -45,7 +47,7 @@ func (e *ElemsTable) sortElements() {
  Gives an index where the new element should be in the new slice
 * Returns 0 if the element should be inserted in the begining
 */
-func (e *ElemsTable) searchIndex(elem Elem) int {
+func (e *ElemsTable) searchInsertIndex(elem Elem) int {
 	elements := e.elements
 	len := len(elements)
 
@@ -61,6 +63,16 @@ func (e *ElemsTable) searchIndex(elem Elem) int {
 	// If function did not returned a result until here it means that the element
 	// is larger than all others and it must be placed in the end
 	return len
+}
+
+// Checks if the element is the element Table
+func (e ElemsTable) findElemIndex(elem Elem) int {
+	for index, value := range e.elements {
+		if Equal(elem, value) {
+			return index
+		}
+	}
+	return -1
 }
 
 // ------------------------------ Sort interface implementation ------------------------------
