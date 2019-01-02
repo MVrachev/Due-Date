@@ -107,3 +107,39 @@ func TestListElementsByDate(t *testing.T) {
 		}
 	}
 }
+
+func TestDeleteFromEmptyTable(t *testing.T) {
+	elementsTable := NewElemsTable(make([]Elem, 0))
+	timeElem := time.Date(2021, 12, 24, 13, 35, 21, 0, time.UTC)
+	delElement := NewElem(timeElem, 0, "End Task!", 0)
+
+	result := elementsTable.DeleteElemFromTheTable(delElement)
+
+	if result || len(elementsTable.elements) != 0 {
+		t.Errorf("\nExpected the deletion from an empty elements table to fail!")
+	}
+}
+
+func TestDeleteNonExistingElement(t *testing.T) {
+	elementsTable := myInit()
+	timeElem := time.Date(2111, 12, 24, 13, 35, 21, 0, time.UTC)
+	delElement := NewElem(timeElem, 0, "End Task!", 0)
+
+	result := elementsTable.DeleteElemFromTheTable(delElement)
+
+	if result || len(elementsTable.elements) != 3 {
+		t.Errorf("\nExpected the deletion of an non existing element in the elements table to fail!")
+	}
+}
+
+func TestDeleteExistingElemFromFullTable(t *testing.T) {
+	elementsTable := myInit()
+	delTime := time.Date(2019, 05, 24, 13, 35, 21, 0, time.UTC)
+	delElement := NewElem(delTime, 3, "Second Task", 0)
+
+	result := elementsTable.DeleteElemFromTheTable(delElement)
+
+	if !result || len(elementsTable.elements) != 2 {
+		t.Errorf("\nExpected the deletion of an existing element in the full elements table to succeed!")
+	}
+}
