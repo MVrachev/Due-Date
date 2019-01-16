@@ -112,7 +112,6 @@ func TestDeleteFromEmptyTable(t *testing.T) {
 	elementsTable := NewElemsTable(make([]Elem, 0))
 	timeElem := time.Date(2021, 12, 24, 13, 35, 21, 0, time.UTC)
 	delElement := NewElem(timeElem, 0, "End Task!")
-
 	result := elementsTable.DeleteElemFromTheTable(delElement)
 
 	if result || len(elementsTable.elements) != 0 {
