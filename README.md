@@ -26,3 +26,7 @@ The elements in my app consists of four attributes:
 ## In future I plan to add:
 - The ability to use shared list by many users.
 - An admin of every shared list who decide which people to include in the shared list and delegates tasks.
+
+## Further future plans
+
+I plan to create an Android application. I want to synchronize this application and my android application.
