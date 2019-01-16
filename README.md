@@ -14,7 +14,7 @@ I wanted to have a sorted to-do list. I was curious how can I implement such a t
 
 The elements in my app consists of four attributes:
 
-< Due date > <Priority> <Description> <Status>
+< Due date > < Priority > < Description > < Status >
   
 1. Logging into the system with name and password
 2. Adding, editing, deleting an element
