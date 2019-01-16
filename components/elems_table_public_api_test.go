@@ -9,17 +9,17 @@ func myInit() *ElemsTable {
 	elements := make([]Elem, 0)
 
 	t := time.Date(2018, 11, 24, 13, 35, 21, 0, time.UTC)
-	elem := NewElem(t, 4, "First Task!", 0)
+	elem := NewElem(t, 4, "First Task!")
 
 	elements = append(elements, elem)
 
 	secT := time.Date(2019, 05, 24, 13, 35, 21, 0, time.UTC)
-	secElem := NewElem(secT, 3, "Second Task", 0)
+	secElem := NewElem(secT, 3, "Second Task")
 
 	elements = append(elements, secElem)
 
 	thirdT := time.Date(2020, 12, 24, 13, 35, 21, 0, time.UTC)
-	thirdElem := NewElem(thirdT, 2, "Third elem", 0)
+	thirdElem := NewElem(thirdT, 2, "Third elem")
 
 	elements = append(elements, thirdElem)
 
@@ -29,7 +29,7 @@ func myInit() *ElemsTable {
 func TestNewElemInEmptyElemsTable(t *testing.T) {
 	elementsTable := NewElemsTable(make([]Elem, 0))
 	timeElem := time.Date(2018, 12, 24, 13, 35, 21, 0, time.UTC)
-	elem := NewElem(timeElem, 0, "First Task!", 0)
+	elem := NewElem(timeElem, 0, "First Task!")
 	elementsTable.AddElemIntoTheTable(elem)
 
 	if len(elementsTable.elements) != 1 {
@@ -43,7 +43,7 @@ func TestNewElemInEmptyElemsTable(t *testing.T) {
 func TestAddInBegining(t *testing.T) {
 	elementsTable := myInit()
 	timeElem := time.Date(2000, 12, 24, 13, 35, 21, 0, time.UTC)
-	newElem := NewElem(timeElem, 0, "Zero Task!", 0)
+	newElem := NewElem(timeElem, 0, "Zero Task!")
 
 	elementsTable.AddElemIntoTheTable(newElem)
 
@@ -58,7 +58,7 @@ func TestAddInBegining(t *testing.T) {
 func TestAddInMedium(t *testing.T) {
 	elementsTable := myInit()
 	timeElem := time.Date(2019, 12, 24, 13, 35, 21, 0, time.UTC)
-	newElem := NewElem(timeElem, 0, "Medium Task!", 0)
+	newElem := NewElem(timeElem, 0, "Medium Task!")
 
 	elementsTable.AddElemIntoTheTable(newElem)
 	if len(elementsTable.elements) != 4 {
@@ -72,7 +72,7 @@ func TestAddInMedium(t *testing.T) {
 func TestAddInEnd(t *testing.T) {
 	elementsTable := myInit()
 	timeElem := time.Date(2021, 12, 24, 13, 35, 21, 0, time.UTC)
-	newElem := NewElem(timeElem, 0, "End Task!", 0)
+	newElem := NewElem(timeElem, 0, "End Task!")
 
 	elementsTable.AddElemIntoTheTable(newElem)
 
@@ -111,7 +111,7 @@ func TestListElementsByDate(t *testing.T) {
 func TestDeleteFromEmptyTable(t *testing.T) {
 	elementsTable := NewElemsTable(make([]Elem, 0))
 	timeElem := time.Date(2021, 12, 24, 13, 35, 21, 0, time.UTC)
-	delElement := NewElem(timeElem, 0, "End Task!", 0)
+	delElement := NewElem(timeElem, 0, "End Task!")
 
 	result := elementsTable.DeleteElemFromTheTable(delElement)
 
@@ -123,7 +123,7 @@ func TestDeleteFromEmptyTable(t *testing.T) {
 func TestDeleteNonExistingElement(t *testing.T) {
 	elementsTable := myInit()
 	timeElem := time.Date(2111, 12, 24, 13, 35, 21, 0, time.UTC)
-	delElement := NewElem(timeElem, 0, "End Task!", 0)
+	delElement := NewElem(timeElem, 0, "End Task!")
 
 	result := elementsTable.DeleteElemFromTheTable(delElement)
 
@@ -135,7 +135,7 @@ func TestDeleteNonExistingElement(t *testing.T) {
 func TestDeleteExistingElemFromFullTable(t *testing.T) {
 	elementsTable := myInit()
 	delTime := time.Date(2019, 05, 24, 13, 35, 21, 0, time.UTC)
-	delElement := NewElem(delTime, 3, "Second Task", 0)
+	delElement := NewElem(delTime, 3, "Second Task")
 
 	result := elementsTable.DeleteElemFromTheTable(delElement)
 
