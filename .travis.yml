@@ -3,5 +3,9 @@ language: go
 
 sudo: false
 
+- export GOPATH=$GOPATH:${${TRAVIS_BUILD_DIR}/go
 
-script: go test ./...
+after_success:
+    - echo "Build Successful!" 
+after_failure:
+    - echo "Build Failed!"
