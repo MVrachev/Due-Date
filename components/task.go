@@ -22,6 +22,7 @@ type Task struct {
 // NewTask creates a new task
 func NewTask(owner string, date time.Time, priority int, description string) Task {
 	return Task{
+		Owner:       owner,
 		DueDate:     date,
 		Priority:    priority,
 		Description: description,
