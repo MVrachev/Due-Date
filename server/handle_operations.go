@@ -63,3 +63,8 @@ func (s *Server) UpdateDescription(task components.Task, newDescription string) 
 	t.Description = newDescription
 	s.db.Save(t)
 }
+
+// Delete deletes a given task
+func (s *Server) Delete(task components.Task) {
+	s.db.Where(&task).Delete(&task)
+}

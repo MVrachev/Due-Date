@@ -1,14 +1,25 @@
 package server
 
-// This will be the server doing the backend work
-// The main work of the server will be to handle user requests
-type Server struct{}
+import (
+	"github.com/jinzhu/gorm"
 
-func NewServer() Server {
-	return Server{}
+	"github.com/end-date/user"
+)
+
+// Server will be the server doing the backend work
+// The main work of the server will be to handle user requests
+type Server struct {
+	db *gorm.DB
 }
 
-func (s *Server) registerClient(user *User) {
+// NewServer creates a new server instance
+func NewServer(db *gorm.DB) Server {
+	return Server{
+		db: db,
+	}
+}
+
+func (s *Server) registerClient(user *user.User) {
 	// user.
 }
 
