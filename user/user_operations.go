@@ -22,6 +22,8 @@ func defineOperation(conn *websocket.Conn, operation string) {
 		list(conn)
 	case "list by priority":
 		list(conn)
+	case "finish":
+		sendID(conn, in)
 	default:
 		fmt.Println("Unrecognized command!")
 	}
@@ -87,4 +89,28 @@ func list(conn *websocket.Conn) {
 	for _, task := range info.InfoTasks {
 		fmt.Println(task)
 	}
+}
+
+// ------------------------------------- Updates -------------------------------------
+
+func sendID(conn *websocket.Conn, in *bufio.Reader) {
+	_, idMsg, err := conn.ReadMessage()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(idMsg)
+	info, err := in.ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
+	myID := Trim(info)
+	if err := conn.WriteMessage(websocket.TextMessage,
+		[]byte(myID)); err != nil {
+		panic(err)
+	}
+	_, resMsg, err := conn.ReadMessage()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(resMsg)
 }

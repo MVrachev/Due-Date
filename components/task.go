@@ -34,6 +34,6 @@ func NewTask(owner string, dueDate time.Time, priority int, description string) 
 func (t Task) String() string {
 	layout := "02 January 2006 15:04:05"
 
-	return fmt.Sprintf("Due date: %v; 	priority: %v; description: %v; status: %v;",
-		fmt.Sprintf(t.DueDate.Format(layout)), t.Priority, t.Description, t.Status)
+	return fmt.Sprintf("ID: %d,  %v; Due date: %v; 	priority: %v; description: %v; status: %v;",
+		t.ID, fmt.Sprintf(t.DueDate.Format(layout)), t.Priority, t.Description, t.Status)
 }

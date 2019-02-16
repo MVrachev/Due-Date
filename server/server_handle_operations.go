@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -41,11 +42,7 @@ func print(tasks []components.Task) {
 	}
 }
 
-// ListTasksByDueDate lists all tasks sorted by DueDate attribute
-func (s *Server) ListTasksByDueDate(conn *websocket.Conn, userName string) {
-	var tasks []components.Task
-	s.db.Where("owner = ?", userName).Order("due_date").Find(&tasks)
-	//print(conn, tasks)
+func sendInfo(conn *websocket.Conn, tasks []components.Task) {
 	info := components.InfoForTasks{
 		InfoTasks: tasks,
 	}
@@ -54,19 +51,63 @@ func (s *Server) ListTasksByDueDate(conn *websocket.Conn, userName string) {
 	}
 }
 
+// ListTasksByDueDate lists all tasks sorted by DueDate attribute
+func (s *Server) ListTasksByDueDate(conn *websocket.Conn, userName string) {
+	var tasks []components.Task
+	s.db.Where("owner = ?", userName).Order("due_date").Find(&tasks)
+	sendInfo(conn, tasks)
+}
+
 // ListTasksByPriority lists all tasks sorted by priority
 func (s *Server) ListTasksByPriority(conn *websocket.Conn, userName string) {
 	var tasks []components.Task
 	s.db.Where("owner = ?", userName).Order("priority").Find(&tasks)
-	print(tasks)
+	sendInfo(conn, tasks)
 }
 
 // ------------------------------------- Finish -------------------------------------
 
-// FinishTask updates the given task  with status "Done"
-func (s *Server) FinishTask(task components.Task) {
+func (s *Server) getID(conn *websocket.Conn) int {
+	if err := conn.WriteMessage(websocket.TextMessage,
+		[]byte("Task with which ID you want to modfiy?")); err != nil {
+		panic(err)
+	}
+
+	_, bufID, err := conn.ReadMessage()
+	if err != nil {
+		panic(err)
+	}
+	ID, err := strconv.Atoi(string(bufID))
+	if err != nil {
+		panic(err)
+	}
+	return ID
+}
+
+func (s *Server) getCertainTask(conn *websocket.Conn, owner string) (*components.Task, error) {
 	t := components.Task{}
-	s.db.Where(&task).First(&t)
+	id := s.getID(conn)
+	s.db.Where("owner = ? AND id = ?", owner, id).First(&t)
+	if t.Owner == "" {
+		if err := conn.WriteMessage(websocket.TextMessage,
+			[]byte("Not right ID!")); err != nil {
+			panic(err)
+		}
+		return nil, errors.New("Not the right ID!")
+	}
+	if err := conn.WriteMessage(websocket.TextMessage,
+		[]byte("The right ID!")); err != nil {
+		panic(err)
+	}
+	return &t, nil
+}
+
+// FinishTask updates the given task  with status "Done"
+func (s *Server) FinishTask(conn *websocket.Conn, owner string) {
+	t, err := s.getCertainTask(conn, owner)
+	if err != nil {
+		return
+	}
 	t.Status = "Done"
 
 	s.mutex.Lock()

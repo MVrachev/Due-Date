@@ -12,19 +12,6 @@ import (
 
 var addr = flag.String("addr", "localhost:3000", "http service address")
 
-func wait(conn *websocket.Conn, done chan struct{}) {
-	for {
-		select {
-		case <-done:
-			if err := conn.WriteMessage(websocket.TextMessage, []byte("bye")); err != nil {
-				panic(err)
-			}
-			return
-
-		}
-	}
-}
-
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
@@ -36,15 +23,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
-
 	user.LoginOrRegister(conn)
-
-	done := make(chan struct{})
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go user.Work(conn, done, wg)
-	wait(conn, done)
+	go user.Work(conn, wg)
 	wg.Wait()
 }

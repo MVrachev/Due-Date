@@ -9,8 +9,6 @@ import (
 )
 
 func (s *Server) defineOperation(conn *websocket.Conn, operation string, userName string) {
-	fmt.Print("operation is")
-	fmt.Print(operation)
 	switch operation {
 	case "add":
 		s.AddTask(conn, userName)
@@ -18,13 +16,14 @@ func (s *Server) defineOperation(conn *websocket.Conn, operation string, userNam
 		s.ListTasksByDueDate(conn, userName)
 	case "list by priority":
 		s.ListTasksByPriority(conn, userName)
+	case "Finish":
+		s.FinishTask(conn, userName)
 	}
 }
 
 // UserWork logs the user and waits for new operation
 func UserWork(conn *websocket.Conn, server Server, wg sync.WaitGroup) {
 	//user := server.LoginOrRegister(conn)
-	defer conn.Close()
 	user := server.LoginOrRegister(conn)
 	for {
 		fmt.Println("Waiting for a new message")
@@ -33,13 +32,13 @@ func UserWork(conn *websocket.Conn, server Server, wg sync.WaitGroup) {
 			panic(err)
 		}
 
-		server.defineOperation(conn, string(message), user.Name)
 		log.Printf("recv: %s", message)
 		if string(message) == "bye" {
 			log.Println("The client left!")
+			conn.Close()
+			wg.Done()
 			break
 		}
+		server.defineOperation(conn, string(message), user.Name)
 	}
-	wg.Done()
-
 }

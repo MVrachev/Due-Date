@@ -32,7 +32,7 @@ func initServer() server.Server {
 
 func listen(w http.ResponseWriter, r *http.Request) {
 	upgrader := websocket.Upgrader{} // use default options
-	log.Println("Starting server on port: " + SERVICE_PORT)
+	fmt.Println("Connected user to the server on port: " + SERVICE_PORT)
 
 	s := initServer()
 	defer s.Close()
