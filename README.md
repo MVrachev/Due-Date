@@ -8,6 +8,19 @@ The idea of that project came when I realized I have many stuff in my to-do list
 
 I wanted to have a sorted to-do list. I was curious how can I implement such a thing with a UI, synchronization with my android phone and so on.
 
+## Starting the server
+
+In the root directory of the project write:
+```
+./server-starter/main
+```
+
+## Starting the user
+
+In the root directory of the project write:
+```
+./user-starter/main
+```
 
  
 ## Functionalities and insights
