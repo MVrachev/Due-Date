@@ -17,11 +17,13 @@ func Work(conn *websocket.Conn, done chan struct{}, wg sync.WaitGroup) {
 		if err != nil {
 			panic(err)
 		}
-		if string(msg) == "bye" {
+		realMsg := Trim(string(msg))
+		if realMsg == "bye" {
 			done <- struct{}{}
 			return
 		}
-		defineOperation(conn, string(msg))
+
+		defineOperation(conn, realMsg)
 		//chanIn <- string(msg)
 	}
 	wg.Wait()

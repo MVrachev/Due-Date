@@ -8,7 +8,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// LoginOrRegister initializes the user
+// LoginOrRegister is the server function which
+// initializes the user
 func (s *Server) LoginOrRegister(conn *websocket.Conn) user.User {
 	if err := conn.WriteMessage(websocket.TextMessage,
 		[]byte("Login or Register? Write l for login or r for register")); err != nil {

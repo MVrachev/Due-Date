@@ -16,6 +16,7 @@ func defineOperation(conn *websocket.Conn, operation string) {
 	case "add":
 		add(conn, in)
 	}
+
 }
 
 func add(conn *websocket.Conn, in *bufio.Reader) {
@@ -50,17 +51,17 @@ func add(conn *websocket.Conn, in *bufio.Reader) {
 	}
 
 	info := components.Information{
-		Priority:    trim(priority),
-		Description: trim(description),
-		Year:        trim(dueDateYear),
-		Month:       trim(dueDateMonth),
-		Day:         trim(dueDateDate),
+		Priority:    Trim(priority),
+		Description: Trim(description),
+		Year:        Trim(dueDateYear),
+		Month:       Trim(dueDateMonth),
+		Day:         Trim(dueDateDate),
 	}
 	if err := conn.WriteJSON(&info); err != nil {
 		panic(err)
 	}
 }
 
-func trim(str string) string {
+func Trim(str string) string {
 	return strings.Trim(str, "\n")
 }

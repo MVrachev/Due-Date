@@ -32,7 +32,10 @@ func (s *Server) AddTask(conn *websocket.Conn, owner string) {
 	timeElem := time.Date(convertToInt(info.Year), time.Month(convertToInt(info.Month)), convertToInt(info.Day), 0, 0, 0, 0, time.UTC)
 	newTask := components.NewTask(owner, timeElem, convertToInt(info.Priority), info.Description)
 	fmt.Println(newTask)
+
+	s.mutex.Lock()
 	s.db.Create(&newTask)
+	s.mutex.Unlock()
 }
 
 // ------------------------------------- Lists -------------------------------------
@@ -64,7 +67,10 @@ func (s *Server) FinishTask(task components.Task) {
 	t := components.Task{}
 	s.db.Where(&task).First(&t)
 	t.Status = "Done"
+
+	s.mutex.Lock()
 	s.db.Save(t)
+	s.mutex.Unlock()
 }
 
 // ------------------------------------- Updates -------------------------------------
@@ -74,7 +80,10 @@ func (s *Server) UpdateDueDate(task components.Task, newDueDate time.Time) {
 	t := components.Task{}
 	s.db.Where(&t).First(&t)
 	t.DueDate = newDueDate
+
+	s.mutex.Lock()
 	s.db.Save(t)
+	s.mutex.Unlock()
 }
 
 // UpdatePriority updates the priority a given task
@@ -82,7 +91,11 @@ func (s *Server) UpdatePriority(task components.Task, newPriority int) {
 	t := components.Task{}
 	s.db.Where(&task).First(&t)
 	t.Priority = newPriority
+
+	s.mutex.Lock()
 	s.db.Save(t)
+	s.mutex.Unlock()
+
 }
 
 // UpdateDescription updates the description of a given task
@@ -90,10 +103,15 @@ func (s *Server) UpdateDescription(task components.Task, newDescription string) 
 	t := components.Task{}
 	s.db.Where(&task).First(&t)
 	t.Description = newDescription
+
+	s.mutex.Lock()
 	s.db.Save(t)
+	s.mutex.Unlock()
 }
 
 // Delete deletes a given task
 func (s *Server) Delete(task components.Task) {
+	s.mutex.Lock()
 	s.db.Where(&task).Delete(&task)
+	s.mutex.Unlock()
 }
