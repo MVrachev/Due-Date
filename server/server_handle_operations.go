@@ -21,17 +21,12 @@ func convertToInt(str string) int {
 
 // AddTask adds a task element
 func (s *Server) AddTask(conn *websocket.Conn, owner string) {
-	fmt.Println("will add")
 	var info components.Information
 	if err := conn.ReadJSON(&info); err != nil {
 		panic(err)
 	}
-
-	fmt.Println("Read JSON")
-
 	timeElem := time.Date(convertToInt(info.Year), time.Month(convertToInt(info.Month)), convertToInt(info.Day), 0, 0, 0, 0, time.UTC)
 	newTask := components.NewTask(owner, timeElem, convertToInt(info.Priority), info.Description)
-	fmt.Println(newTask)
 
 	s.mutex.Lock()
 	s.db.Create(&newTask)
@@ -47,16 +42,22 @@ func print(tasks []components.Task) {
 }
 
 // ListTasksByDueDate lists all tasks sorted by DueDate attribute
-func (s *Server) ListTasksByDueDate(userName string) {
+func (s *Server) ListTasksByDueDate(conn *websocket.Conn, userName string) {
 	var tasks []components.Task
-	s.db.Where("name = ?", userName).Order("date").Find(&tasks)
-	print(tasks)
+	s.db.Where("owner = ?", userName).Order("due_date").Find(&tasks)
+	//print(conn, tasks)
+	info := components.InfoForTasks{
+		InfoTasks: tasks,
+	}
+	if err := conn.WriteJSON(&info); err != nil {
+		panic(err)
+	}
 }
 
 // ListTasksByPriority lists all tasks sorted by priority
-func (s *Server) ListTasksByPriority(userName string) {
+func (s *Server) ListTasksByPriority(conn *websocket.Conn, userName string) {
 	var tasks []components.Task
-	s.db.Where("name = ?", userName).Order("priority").Find(&tasks)
+	s.db.Where("owner = ?", userName).Order("priority").Find(&tasks)
 	print(tasks)
 }
 

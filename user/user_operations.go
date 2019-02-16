@@ -12,12 +12,23 @@ import (
 
 func defineOperation(conn *websocket.Conn, operation string) {
 	in := bufio.NewReader(os.Stdin)
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(operation)); err != nil {
+		panic(err)
+	}
 	switch operation {
 	case "add":
 		add(conn, in)
+	case "list by date":
+		list(conn)
+	case "list by priority":
+		list(conn)
+	default:
+		fmt.Println("Unrecognized command!")
 	}
 
 }
+
+// ------------------------------------- Add -------------------------------------
 
 func add(conn *websocket.Conn, in *bufio.Reader) {
 	fmt.Println("You will add a new task.")
@@ -64,4 +75,16 @@ func add(conn *websocket.Conn, in *bufio.Reader) {
 
 func Trim(str string) string {
 	return strings.Trim(str, "\n")
+}
+
+// ------------------------------------- Lists -------------------------------------
+
+func list(conn *websocket.Conn) {
+	info := components.InfoForTasks{}
+	if err := conn.ReadJSON(&info); err != nil {
+		panic(err)
+	}
+	for _, task := range info.InfoTasks {
+		fmt.Println(task)
+	}
 }

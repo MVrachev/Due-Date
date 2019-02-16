@@ -24,7 +24,6 @@ func Work(conn *websocket.Conn, done chan struct{}, wg sync.WaitGroup) {
 		}
 
 		defineOperation(conn, realMsg)
-		//chanIn <- string(msg)
 	}
 	wg.Wait()
 }
