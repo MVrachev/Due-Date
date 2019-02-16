@@ -7,10 +7,18 @@ import (
 	"github.com/end-date/components"
 )
 
-// AddTask adds a task element
-func (s *Server) AddTask(newTask components.Task) {
+// ------------------------------------- Add -------------------------------------
+
+func (s *Server) add(newTask components.Task) {
 	s.db.Create(&newTask)
 }
+
+// AddTask adds a task element
+func (s *Server) AddTask() {
+
+}
+
+// ------------------------------------- Lists -------------------------------------
 
 func print(tasks []components.Task) {
 	for _, task := range tasks {
@@ -19,18 +27,20 @@ func print(tasks []components.Task) {
 }
 
 // ListTasksByDueDate lists all tasks sorted by DueDate attribute
-func (s *Server) ListTasksByDueDate() {
+func (s *Server) ListTasksByDueDate(userName string) {
 	var tasks []components.Task
-	s.db.Order("date").Find(&tasks)
+	s.db.Where("name = ?", userName).Order("date").Find(&tasks)
 	print(tasks)
 }
 
 // ListTasksByPriority lists all tasks sorted by priority
-func (s *Server) ListTasksByPriority() {
+func (s *Server) ListTasksByPriority(userName string) {
 	var tasks []components.Task
-	s.db.Order("priority").Find(&tasks)
+	s.db.Where("name = ?", userName).Order("priority").Find(&tasks)
 	print(tasks)
 }
+
+// ------------------------------------- Finish -------------------------------------
 
 // FinishTask updates the given task  with status "Done"
 func (s *Server) FinishTask(task components.Task) {
@@ -39,6 +49,8 @@ func (s *Server) FinishTask(task components.Task) {
 	t.Status = "Done"
 	s.db.Save(t)
 }
+
+// ------------------------------------- Updates -------------------------------------
 
 // UpdateDueDate updates due date of the given task
 func (s *Server) UpdateDueDate(task components.Task, newDueDate time.Time) {

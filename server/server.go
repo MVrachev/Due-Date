@@ -2,8 +2,6 @@ package server
 
 import (
 	"github.com/jinzhu/gorm"
-
-	"github.com/end-date/user"
 )
 
 // Server will be the server doing the backend work
@@ -19,11 +17,6 @@ func NewServer(db *gorm.DB) Server {
 	}
 }
 
-func (s *Server) registerClient(user *user.User) {
-	// user.
-}
-
-// Here the server will be spawned and will wait for new users
-func (s *Server) executeServer() {
-
+func (s *Server) Close() {
+	s.db.Close()
 }

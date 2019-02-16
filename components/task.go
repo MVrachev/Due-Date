@@ -32,7 +32,7 @@ func NewTask(owner string, date time.Time, priority int, description string) Tas
 
 // Implements the String interface for the Elem object
 func (t Task) String() string {
-	layout := "02 January	2006 15:04:05"
+	layout := "02 January 2006 15:04:05"
 
 	return fmt.Sprintf("Due date: %v; 	priority: %v; description: %v; status: %v;",
 		fmt.Sprintf(t.DueDate.Format(layout)), t.Priority, t.Description, t.Status)
