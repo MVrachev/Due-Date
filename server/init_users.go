@@ -1,8 +1,8 @@
 package server
 
 import (
+	"fmt"
 	"log"
-	"strings"
 
 	"github.com/end-date/user"
 	"github.com/gorilla/websocket"
@@ -20,6 +20,7 @@ func (s *Server) LoginOrRegister(conn *websocket.Conn) user.User {
 			panic(err)
 		}
 		strAnswer := string(answer)
+		fmt.Print(strAnswer)
 		if strAnswer == "l" || strAnswer == "L" {
 			if err := conn.WriteMessage(websocket.TextMessage, []byte("You chose login.")); err != nil {
 				panic(err)
@@ -45,25 +46,24 @@ func (s *Server) LoginOrRegister(conn *websocket.Conn) user.User {
 // ------------------------------------- Register -------------------------------------
 
 func (s *Server) registerUser(conn *websocket.Conn) user.User {
-	userName := s.getUserName(conn)
-	pass := s.getPass(conn)
-	user := user.NewUser(string(userName), string(pass))
+	user := s.readCredentials(conn)
+	//user := user.NewUser(string(userName), string(pass))
 	s.db.Create(&user)
 	return user
 }
 
 // ------------------------------------- Login -------------------------------------
 
-func (s *Server) isUserInDataBase(conn *websocket.Conn, possUser user.User) bool {
+func (s *Server) isUserInDataBase(conn *websocket.Conn, possUserName string) bool {
 	u := user.User{}
 	log.Print("The name of the possUser is: ")
-	log.Print(possUser.Name)
-	name := strings.Trim(string(possUser.Name), "\n")
+	log.Print(possUserName)
+	//name := strings.Trim(string(possUserName), "\n")
 
-	s.db.Where("name = ?", name).First(&u)
+	s.db.Where("name = ?", possUserName).First(&u)
 	log.Print("The name of the found user is: ")
 	log.Print(u.Name)
-	if u.Name != possUser.Name {
+	if u.Name != possUserName {
 		return false
 	}
 	if err := conn.WriteMessage(websocket.TextMessage, []byte(u.Password)); err != nil {
@@ -82,18 +82,14 @@ func (s *Server) isUserInDataBase(conn *websocket.Conn, possUser user.User) bool
 func (s *Server) loginUser(conn *websocket.Conn) user.User {
 	count := 0
 	for {
-		//log.Println(count)
-		userName := s.getUserName(conn)
-		pass := s.getPass(conn)
-		log.Print(userName)
-		log.Print(pass)
-		user := user.NewUser(userName, pass)
-		isUserInDBalready := s.isUserInDataBase(conn, user)
+		userName := s.getName(conn)
+		isUserInDBalready := s.isUserInDataBase(conn, userName)
 		if isUserInDBalready {
 			if err := conn.WriteMessage(websocket.TextMessage, []byte("Logged in!")); err != nil {
 				panic(err)
 			}
-			return user
+			u := user.NewUser(userName, "")
+			return u
 		} else {
 			if err := conn.WriteMessage(websocket.TextMessage, []byte("Wrong username or password!")); err != nil {
 				panic(err)
@@ -106,25 +102,18 @@ func (s *Server) loginUser(conn *websocket.Conn) user.User {
 
 // ------------------------------------- Helper function -------------------------------------
 
-func (s *Server) getUserName(conn *websocket.Conn) string {
-	if err := conn.WriteMessage(websocket.TextMessage, []byte("Username: ")); err != nil {
+func (s *Server) readCredentials(conn *websocket.Conn) user.User {
+	var u user.User
+	if err := conn.ReadJSON(&u); err != nil {
 		panic(err)
 	}
+	return u
+}
+
+func (s *Server) getName(conn *websocket.Conn) string {
 	_, userName, err := conn.ReadMessage()
 	if err != nil {
 		panic(err)
 	}
 	return string(userName)
-}
-
-func (s *Server) getPass(conn *websocket.Conn) string {
-	if err := conn.WriteMessage(websocket.TextMessage, []byte("Password: ")); err != nil {
-		panic(err)
-	}
-
-	_, pass, err := conn.ReadMessage()
-	if err != nil {
-		panic(err)
-	}
-	return string(pass)
 }

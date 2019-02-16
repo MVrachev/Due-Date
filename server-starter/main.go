@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
 	"github.com/end-date/server"
 	"github.com/gorilla/websocket"
@@ -34,33 +35,16 @@ func listen(w http.ResponseWriter, r *http.Request) {
 	log.Println("Starting server on port: " + SERVICE_PORT)
 
 	s := initServer()
+	defer s.Close()
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("upgrade:", err)
 		return
 	}
-	defer s.Close()
-	defer conn.Close()
-	for {
-
-		//go server.UserWork(conn, s)
-
-		s.LoginOrRegister(conn)
-		for {
-			_, message, err := conn.ReadMessage()
-			if err != nil {
-				panic(err)
-			}
-
-			//defineOperation(string(message), user.Name)
-			log.Printf("recv: %s", message)
-			if string(message) == "bye" {
-				log.Println("The client left!")
-				break
-			}
-		}
-
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go server.UserWork(conn, s, wg)
+	wg.Wait()
 }
 
 func main() {

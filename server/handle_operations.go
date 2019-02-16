@@ -2,20 +2,33 @@ package server
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/end-date/components"
+	"github.com/gorilla/websocket"
 )
 
 // ------------------------------------- Add -------------------------------------
 
-func (s *Server) add(newTask components.Task) {
-	s.db.Create(&newTask)
+func convertToInt(str string) int {
+	res, err := strconv.Atoi(str)
+	if err != nil {
+		panic(err)
+	}
+	return res
 }
 
 // AddTask adds a task element
-func (s *Server) AddTask() {
+func (s *Server) AddTask(conn *websocket.Conn, owner string) {
+	var info components.Information
+	if err := conn.ReadJSON(&info); err != nil {
+		panic(err)
+	}
 
+	timeElem := time.Date(convertToInt(info.Year), time.Month(convertToInt(info.Month)), convertToInt(info.Day), 0, 0, 0, 0, time.UTC)
+	newTask := components.NewTask(owner, timeElem, convertToInt(info.Priority), info.Description)
+	s.db.Debug().Create(&newTask)
 }
 
 // ------------------------------------- Lists -------------------------------------

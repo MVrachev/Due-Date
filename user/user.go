@@ -6,8 +6,8 @@ import "github.com/jinzhu/gorm"
 // will send requests to the server
 type User struct {
 	gorm.Model
-	Name     string
-	Password string
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
 
 // NewUser creates a new User

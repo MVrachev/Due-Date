@@ -20,10 +20,10 @@ type Task struct {
 }
 
 // NewTask creates a new task
-func NewTask(owner string, date time.Time, priority int, description string) Task {
+func NewTask(owner string, dueDate time.Time, priority int, description string) Task {
 	return Task{
 		Owner:       owner,
-		DueDate:     date,
+		DueDate:     dueDate,
 		Priority:    priority,
 		Description: description,
 		Status:      "In progress",

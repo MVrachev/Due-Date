@@ -2,6 +2,7 @@ package user
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -12,7 +13,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func (u *User) LoginOrRegister(conn *websocket.Conn) {
+func LoginOrRegister(conn *websocket.Conn) {
 	_, logOrRegMsg, err := conn.ReadMessage()
 	if err != nil {
 		panic(err)
@@ -21,13 +22,12 @@ func (u *User) LoginOrRegister(conn *websocket.Conn) {
 	in := bufio.NewReader(os.Stdin)
 
 	for {
-		ans, _, err := in.ReadLine()
-		//ans, err := in.ReadString('\n')
-
-		finalAnsw := strings.Trim(string(ans), "\n")
+		ans, err := in.ReadString('\n')
 		if err != nil {
 			panic(err)
 		}
+		finalAnsw := strings.Trim(string(ans), "\n")
+
 		if err := conn.WriteMessage(websocket.TextMessage, []byte(finalAnsw)); err != nil {
 			panic(err)
 		}
@@ -39,9 +39,11 @@ func (u *User) LoginOrRegister(conn *websocket.Conn) {
 		strRes := string(resMessage)
 		log.Println(strRes)
 		if strRes == "You chose login." {
-			u.login(conn)
+			login(conn)
+			return
 		} else if strRes == "You chose register." {
-			u.registerUser(conn)
+			registerUser(conn)
+			return
 		} else {
 			_, invalidCommMsg, err := conn.ReadMessage()
 			if err != nil {
@@ -54,19 +56,26 @@ func (u *User) LoginOrRegister(conn *websocket.Conn) {
 
 // ------------------------------------- Register -------------------------------------
 
-func (u *User) registerUser(conn *websocket.Conn) {
-	u.sendUserName(conn)
-	u.sendPass(conn)
+func registerUser(conn *websocket.Conn) {
+	userName := getUserName(conn)
+	pass := getPass(conn)
+	hashedPassword, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+	user := NewUser(userName, string(hashedPassword))
+	if err := conn.WriteJSON(&user); err != nil {
+		panic(err)
+	}
 }
 
 // ------------------------------------- Login -------------------------------------
 
-func (u *User) isUserInDataBase(conn *websocket.Conn, pass []byte) {
+func isUserInDataBase(conn *websocket.Conn, pass []byte) {
 	_, possHash, err := conn.ReadMessage()
 	if err != nil {
 		panic(err)
 	}
-	log.Println(string(possHash))
 	err = bcrypt.CompareHashAndPassword(possHash, pass)
 	if err != nil {
 		if err = conn.WriteMessage(websocket.TextMessage, []byte("Not in DB")); err != nil {
@@ -80,11 +89,14 @@ func (u *User) isUserInDataBase(conn *websocket.Conn, pass []byte) {
 
 }
 
-func (u *User) login(conn *websocket.Conn) {
+func login(conn *websocket.Conn) {
 	for {
-		u.sendUserName(conn)
-		pass := u.sendPass(conn)
-		u.isUserInDataBase(conn, pass)
+		userName := getUserName(conn)
+		pass := getPass(conn)
+		if err := conn.WriteMessage(websocket.TextMessage, []byte(userName)); err != nil {
+			panic(err)
+		}
+		isUserInDataBase(conn, pass)
 
 		_, resMessage, err := conn.ReadMessage()
 		if err != nil {
@@ -100,47 +112,26 @@ func (u *User) login(conn *websocket.Conn) {
 
 // ------------------------------------- Helper function -------------------------------------
 
-func (u *User) sendUserName(conn *websocket.Conn) {
-	_, userNameMsg, err := conn.ReadMessage()
-	if err != nil {
-		panic(err)
-	}
+func getUserName(conn *websocket.Conn) string {
+	fmt.Print("Username: ")
 
-	log.Print(string(userNameMsg))
 	in := bufio.NewReader(os.Stdin)
-
-	//userName, err := in.ReadString('\n')
-	//in.ReadLine
-	userName, _, err := in.ReadLine()
-	finalUserName := strings.Trim(string(userName), "\n")
-
+	userName, err := in.ReadString('\n')
 	if err != nil {
 		panic(err)
 	}
-	if err := conn.WriteMessage(websocket.TextMessage, []byte(finalUserName)); err != nil {
-		panic(err)
-	}
+
+	finalUserName := strings.Trim(string(userName), "\n")
+	return finalUserName
 }
 
-func (u *User) sendPass(conn *websocket.Conn) []byte {
-	_, passMsg, err := conn.ReadMessage()
-	if err != nil {
-		panic(err)
-	}
-	log.Print(string(passMsg))
+func getPass(conn *websocket.Conn) []byte {
+	fmt.Print("Password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		panic(err)
 	}
-	finalPass := strings.Trim(string(bytePassword), "\n")
 
-	//log.Println()
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(finalPass), bcrypt.DefaultCost)
-	if err != nil {
-		panic(err)
-	}
-	if err := conn.WriteMessage(websocket.TextMessage, []byte(hashedPassword)); err != nil {
-		panic(err)
-	}
+	log.Println()
 	return bytePassword
 }
