@@ -21,14 +21,18 @@ func convertToInt(str string) int {
 
 // AddTask adds a task element
 func (s *Server) AddTask(conn *websocket.Conn, owner string) {
+	fmt.Println("will add")
 	var info components.Information
 	if err := conn.ReadJSON(&info); err != nil {
 		panic(err)
 	}
 
+	fmt.Println("Read JSON")
+
 	timeElem := time.Date(convertToInt(info.Year), time.Month(convertToInt(info.Month)), convertToInt(info.Day), 0, 0, 0, 0, time.UTC)
 	newTask := components.NewTask(owner, timeElem, convertToInt(info.Priority), info.Description)
-	s.db.Debug().Create(&newTask)
+	fmt.Println(newTask)
+	s.db.Create(&newTask)
 }
 
 // ------------------------------------- Lists -------------------------------------

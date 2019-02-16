@@ -13,6 +13,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+// LoginOrRegister speaks with the LoginOrRegister function in the server part.
+// This function is used to initialize the user.
 func LoginOrRegister(conn *websocket.Conn) {
 	_, logOrRegMsg, err := conn.ReadMessage()
 	if err != nil {
